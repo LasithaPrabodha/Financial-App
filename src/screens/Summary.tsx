@@ -19,7 +19,7 @@ export const Summary = () => {
 
     load();
 
-    const unsubscribe = navigation.addListener('tabPress', _ => load());
+    const unsubscribe = navigation.addListener('tabPress', () => load());
 
     return unsubscribe;
   }, [navigation, transactionsService]);
