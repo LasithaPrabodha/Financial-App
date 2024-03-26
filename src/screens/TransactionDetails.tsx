@@ -49,5 +49,5 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   amount: {color: '#bdbddd', fontSize: 56},
-  text: {color: '#bdbddd'},
+  text: {fontSize: 16, color: '#bdbddd'},
 });
