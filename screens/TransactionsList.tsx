@@ -1,16 +1,42 @@
-import * as React from 'react';
-import {Text, View, FlatList, TouchableOpacity, StyleSheet} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {
+  Text,
+  View,
+  FlatList,
+  TouchableOpacity,
+  StyleSheet,
+  FlatListProps,
+} from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
+import TransactionsService from '../services/TransactionsService';
+import {ITransaction} from '../interfaces/Transaction';
+import {useNavigation} from '@react-navigation/native';
+import {RootStackParamList} from './Transactions';
+import {StackNavigationProp} from '@react-navigation/stack';
 
-const transactions = Array.from(Array(100).keys()).map(val => ({
-  id: val,
-  name: 'Amazon Purchase',
-  type: 'Debit Retail',
-  icon: 'shopping-cart',
-  amount: 5.65,
-}));
+const Separator = (_: FlatListProps<ITransaction>) => (
+  <View style={styles.separator} />
+);
 
-export const TransactionsList = ({navigation}) => {
+export const TransactionsList = () => {
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  const [transactions, setTransactions] = useState<ITransaction[]>([]);
+  const transactionsService = TransactionsService.getInstance();
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  useEffect(() => {
+    const list = transactionsService.generateList(10);
+    setTransactions(list);
+  }, [transactionsService]);
+
+  const loadMoreResults = () => {
+    setLoadingMore(true);
+
+    setTimeout(() => {
+      const newList = transactionsService.loadMore(10);
+      setTransactions(newList);
+    }, 1000);
+  };
   return (
     <View style={styles.container}>
       <FlatList
@@ -19,14 +45,38 @@ export const TransactionsList = ({navigation}) => {
         ListEmptyComponent={
           <Text style={styles.emptyListText}>No transactions</Text>
         }
-        ItemSeparatorComponent={<View style={styles.separator} />}
+        ItemSeparatorComponent={Separator}
+        onEndReachedThreshold={0.01}
+        onEndReached={_ => {
+          loadMoreResults();
+        }}
+        ListFooterComponent={
+          <View>
+            {loadingMore && (
+              <Text style={styles.footerText}>Loading More...</Text>
+            )}
+          </View>
+        }
         renderItem={({item}) => (
           <TouchableOpacity
             style={styles.item}
-            onPress={() => navigation.navigate('TransactionDetails')}>
-            <MaterialIcon name={item.icon} size={24} color={'black'} />
-            <Text style={styles.transactionName}>{item.name}</Text>
-            <Text>${item.amount}</Text>
+            onPress={() =>
+              navigation.navigate('TransactionDetails', {id: item.id})
+            }>
+            <MaterialIcon
+              style={styles.icon}
+              name={item.icon}
+              size={24}
+              color={'#90a0d9'}
+            />
+            <View style={styles.itemText}>
+              <Text style={styles.transactionName}>{item.company}</Text>
+              <Text style={styles.transactionType}>{item.product}</Text>
+            </View>
+            <Text style={styles.amount}>
+              {item.currency}
+              {item.amount}
+            </Text>
           </TouchableOpacity>
         )}
         keyExtractor={item => item.id}
@@ -35,20 +85,44 @@ export const TransactionsList = ({navigation}) => {
   );
 };
 const styles = StyleSheet.create({
-  container: {flex: 1, justifyContent: 'center', alignItems: 'center'},
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#030317',
+  },
+  icon: {marginTop: 4},
+  itemText: {display: 'flex', flex: 1, marginLeft: 12},
   flatList: {width: '100%'},
   separator: {
     height: 1,
-    width: '100%',
-    backgroundColor: '#CCC',
+    width: '93%',
+    backgroundColor: '#eeeeee40',
+    marginHorizontal: 14,
   },
   item: {
-    paddingVertical: 10,
+    paddingVertical: 18,
     paddingHorizontal: 14,
     display: 'flex',
     flexDirection: 'row',
-    borderBottom: 1,
   },
-  transactionName: {marginLeft: 12, flex: 1},
-  emptyListText: {marginTop: 24, width: '100%', textAlign: 'center'},
+  transactionName: {color: '#90a0d9', fontSize: 20, marginBottom: 4},
+  transactionType: {color: '#bdbddd'},
+  emptyListText: {
+    marginTop: 24,
+    width: '100%',
+    textAlign: 'center',
+    color: '#bdbddd',
+  },
+  amount: {
+    color: '#bdbddd',
+    fontSize: 22,
+  },
+  footerText: {
+    padding: 16,
+    width: '100%',
+    textAlign: 'center',
+    color: '#bdbddd',
+    fontWeight: '600',
+  },
 });

@@ -1,6 +1,6 @@
 import React from 'react';
-
-import {NavigationContainer} from '@react-navigation/native';
+import {StatusBar} from 'react-native';
+import {NavigationContainer, DarkTheme} from '@react-navigation/native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {Transactions} from './screens/Transactions';
 import {Summary} from './screens/Summary';
@@ -10,11 +10,12 @@ const Tab = createBottomTabNavigator();
 
 function App(): React.JSX.Element {
   return (
-    <NavigationContainer>
+    <NavigationContainer theme={DarkTheme}>
+      <StatusBar barStyle="light-content" backgroundColor="#030317" />
       <Tab.Navigator
         screenOptions={({route}) => ({
           tabBarIcon: ({focused, color, size}) => {
-            let iconName;
+            let iconName = '';
 
             if (route.name === 'Transactions') {
               iconName = focused ? 'list' : 'list-outline';
@@ -27,7 +28,7 @@ function App(): React.JSX.Element {
             // You can return any component that you like here!
             return <Ionicons name={iconName} size={size} color={color} />;
           },
-          tabBarActiveTintColor: 'tomato',
+          tabBarActiveTintColor: '#ba2d23',
           tabBarInactiveTintColor: 'gray',
         })}>
         <Tab.Screen
@@ -35,7 +36,17 @@ function App(): React.JSX.Element {
           component={Transactions}
           options={{headerShown: false}}
         />
-        <Tab.Screen name="Summary" component={Summary} />
+        <Tab.Screen
+          name="Summary"
+          component={Summary}
+          options={{
+            headerShadowVisible: false,
+            headerStyle: {
+              backgroundColor: '#030317',
+            },
+            headerTintColor: '#bdbddd',
+          }}
+        />
       </Tab.Navigator>
     </NavigationContainer>
   );
