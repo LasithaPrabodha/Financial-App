@@ -2,8 +2,8 @@ import React from 'react';
 import {StatusBar} from 'react-native';
 import {NavigationContainer, DarkTheme} from '@react-navigation/native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {Transactions} from './src/screens/Transactions';
-import {Summary} from './src/screens/Summary';
+import {Transactions} from './screens/Transactions';
+import {Summary} from './screens/Summary';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const Tab = createBottomTabNavigator();
