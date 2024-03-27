@@ -65,7 +65,7 @@ export default class TransactionsService {
 
   public calculateSummary(): ISummaryGridItem[] {
     const count = this.list.length;
-    const balance = this.list.reduce((prev, curr) => prev + +curr.amount, 0);
+    const total = this.list.reduce((prev, curr) => prev + +curr.amount, 0);
     const sorted = [...this.list].sort(
       (a, b) => parseFloat(a.amount) - parseFloat(b.amount),
     );
@@ -80,8 +80,8 @@ export default class TransactionsService {
         item: '',
       },
       {
-        number: `$${balance}`,
-        label: 'Balance',
+        number: `$${total}`,
+        label: 'Total Spending',
         item: '',
       },
       {

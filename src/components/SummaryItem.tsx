@@ -24,7 +24,7 @@ const styles = StyleSheet.create({
   gridItem: {
     margin: 8,
     borderRadius: 8,
-    borderColor: 'white',
+    borderColor: '#eeeeee40',
     borderWidth: 1,
     paddingVertical: 16,
     paddingHorizontal: 12,
