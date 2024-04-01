@@ -6,7 +6,7 @@ import {ISummaryGridItem} from '../interfaces/SummaryGridItem';
 
 export default class TransactionsService {
   private static instance: TransactionsService;
-  private list!: ITransaction[];
+  private list!: ITransaction[] = [];
   private readonly icons = [
     'beach-access',
     'shopping-cart',
@@ -25,29 +25,24 @@ export default class TransactionsService {
     return TransactionsService.instance;
   }
 
-  private generate(amount: number) {
-    return Array.from(Array(amount).keys()).map(
-      _ =>
-        ({
-          id: nanoid(),
-          company: faker.company.name(),
-          product: faker.commerce.product(),
-          location: `${faker.location.city()}, ${faker.location.countryCode()}`,
-          date: faker.date.past().toDateString(),
-          icon: this.icons[Math.floor(Math.random() * this.icons.length)],
-          amount: faker.commerce.price({
-            min: 10,
-            max: 200,
-            dec: 2,
-          }),
-          currency: '$',
-        } as ITransaction),
-    );
+  public generate() {
+    return {
+      id: nanoid(),
+      company: faker.company.name(),
+      product: faker.commerce.product(),
+      location: `${faker.location.city()}, ${faker.location.countryCode()}`,
+      date: faker.date.past().toDateString(),
+      icon: this.icons[Math.floor(Math.random() * this.icons.length)],
+      amount: faker.commerce.price({
+        min: 10,
+        max: 200,
+        dec: 2,
+      }),
+      currency: '$',
+    } as ITransaction;
   }
 
-  public generateList(amount = 30): ITransaction[] {
-    this.list = this.generate(amount);
-
+  public loadList(): ITransaction[] {
     return this.list;
   }
 
@@ -56,10 +51,6 @@ export default class TransactionsService {
   }
 
   public loadMore(amount = 30) {
-    const list = this.generate(amount);
-
-    this.list = [...this.list, ...list];
-
     return this.list;
   }
 
@@ -69,9 +60,11 @@ export default class TransactionsService {
     const sorted = [...this.list].sort(
       (a, b) => parseFloat(a.amount) - parseFloat(b.amount),
     );
-    const highest = sorted[sorted.length - 1];
+    const highest = sorted.length
+      ? sorted[sorted.length - 1]
+      : {amount: 0, product: ''};
 
-    const lowest = sorted[0];
+    const lowest = sorted.length ? sorted[0] : {amount: 0, product: ''};
 
     const summaryArray = [
       {

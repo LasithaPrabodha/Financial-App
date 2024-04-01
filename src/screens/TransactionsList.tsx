@@ -11,12 +11,12 @@ export const TransactionsList = () => {
   const [loadingMore, setLoadingMore] = useState(false);
 
   useEffect(() => {
-    const list = transactionsService.generateList(10);
-    setTransactions(list);
+    // const list = transactionsService.generateList(10);
+    // setTransactions(list);
   }, [transactionsService]);
 
   const loadMoreResults = () => {
-    setLoadingMore(true);
+    // setLoadingMore(true);
 
     setTimeout(() => {
       const newList = transactionsService.loadMore(10);
