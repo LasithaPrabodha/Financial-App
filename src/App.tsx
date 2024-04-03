@@ -52,7 +52,12 @@ function App(): React.JSX.Element {
           name="Add"
           component={AddTransaction}
           options={{
-            title: 'Add New Transaction',
+            title: 'Enter New Transaction Details',
+            headerShadowVisible: false,
+            headerStyle: {
+              backgroundColor: '#030317',
+            },
+            headerTintColor: '#bdbddd',
             tabBarIcon: _ => (
               <Ionicons name={'add'} size={32} color={'white'} />
             ),

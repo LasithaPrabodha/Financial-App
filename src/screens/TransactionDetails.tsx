@@ -1,28 +1,21 @@
 import React, {useEffect, useState} from 'react';
-import {Text, View, StyleSheet, Alert} from 'react-native';
+import {Text, View, StyleSheet} from 'react-native';
 import TransactionsService from '../services/TransactionsService';
 import {RouteProp, useRoute} from '@react-navigation/native';
 import {RootStackParamList} from './Transactions';
-import {ITransaction} from '../interfaces/Transaction';
-import firestore from '@react-native-firebase/firestore';
+import {Transaction} from '../interfaces/Transaction';
 
 type ScreenRouteProp = RouteProp<RootStackParamList, 'TransactionDetails'>;
 
 export const TransactionDetails = () => {
   const route = useRoute<ScreenRouteProp>();
-  const [product, setProduct] = useState<ITransaction>({} as ITransaction);
+  const [product, setProduct] = useState<Transaction>({} as Transaction);
 
   const {id} = route.params;
   const transactionsService = TransactionsService.getInstance();
 
   useEffect(() => {
     const item = transactionsService.getItem(id);
-    firestore()
-      .collection('Transactions')
-      .get()
-      .then(s => {
-        s.forEach(d => Alert.alert(JSON.stringify(d.data())));
-      });
     setProduct(item);
   }, [id, transactionsService]);
 

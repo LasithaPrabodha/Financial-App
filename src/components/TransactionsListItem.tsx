@@ -1,20 +1,21 @@
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
-import React from 'react';
+import React, {memo} from 'react';
 import {Text, View, TouchableOpacity, StyleSheet} from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import {RootStackParamList} from '../screens/Transactions';
-import {ITransaction} from '../interfaces/Transaction';
+import {TransactionWithId} from '../interfaces/Transaction';
 
-export default function TransactionsListItem({
+function TransactionsListItem({
   icon,
   id,
   company,
   product,
   currency,
   amount,
-}: Readonly<ITransaction>) {
+}: Readonly<TransactionWithId>) {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+
   return (
     <TouchableOpacity
       style={styles.item}
@@ -53,3 +54,5 @@ const styles = StyleSheet.create({
     fontSize: 22,
   },
 });
+
+export default memo(TransactionsListItem);

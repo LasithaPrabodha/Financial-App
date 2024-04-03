@@ -1,41 +1,70 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {Text, View, FlatList, StyleSheet} from 'react-native';
 import TransactionsService from '../services/TransactionsService';
-import {ITransaction} from '../interfaces/Transaction';
+import {TransactionWithId} from '../interfaces/Transaction';
 import TransactionsListItem from '../components/TransactionsListItem';
 import Seperator from '../components/Seperator';
+import {useNavigation} from '@react-navigation/native';
 
 export const TransactionsList = () => {
-  const [transactions, setTransactions] = useState<ITransaction[]>([]);
+  const navigation = useNavigation<any>();
+  const [transactions, setTransactions] = useState<TransactionWithId[]>([]);
   const transactionsService = TransactionsService.getInstance();
+  const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
+  const canMomentum = useRef(false);
 
   useEffect(() => {
-    // const list = transactionsService.generateList(10);
-    // setTransactions(list);
-  }, [transactionsService]);
+    const unsubscribe = navigation.addListener('focus', async () => {
+      setLoading(true);
+      const list = await transactionsService.loadList();
+      setTransactions(list);
+      setLoading(false);
+    });
 
-  const loadMoreResults = () => {
-    // setLoadingMore(true);
+    return unsubscribe;
+  }, [navigation, transactionsService]);
 
-    setTimeout(() => {
-      const newList = transactionsService.loadMore(10);
-      setTransactions(newList);
-    }, 1000);
+  const onMomentumScrollBegin = () => {
+    canMomentum.current = true;
   };
+
+  const onMomentumScrollEnd = () => {
+    if (canMomentum.current) {
+      loadMoreResults();
+    }
+
+    canMomentum.current = false;
+  };
+
+  const loadMoreResults = async () => {
+    if (loading || transactionsService.reachedEnd) {
+      return;
+    }
+
+    setLoadingMore(true);
+
+    const newList = await transactionsService.loadMore(10);
+    setTransactions(newList);
+    setLoadingMore(false);
+  };
+
   return (
     <View style={styles.container}>
       <FlatList
         style={styles.flatList}
         data={transactions}
+        onMomentumScrollBegin={onMomentumScrollBegin}
+        onMomentumScrollEnd={onMomentumScrollEnd}
         ListEmptyComponent={
-          <Text style={styles.emptyListText}>No transactions</Text>
+          <View>
+            {!loading && (
+              <Text style={styles.emptyListText}>No transactions</Text>
+            )}
+          </View>
         }
         ItemSeparatorComponent={Seperator}
         onEndReachedThreshold={0.01}
-        onEndReached={_ => {
-          loadMoreResults();
-        }}
         ListFooterComponent={
           <View>
             {loadingMore && (
@@ -44,7 +73,7 @@ export const TransactionsList = () => {
           </View>
         }
         renderItem={({item}) => <TransactionsListItem {...item} />}
-        keyExtractor={item => item.id}
+        keyExtractor={item => item.id!}
       />
     </View>
   );
@@ -53,8 +82,6 @@ export const TransactionsList = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     backgroundColor: '#030317',
   },
   flatList: {width: '100%'},
@@ -65,7 +92,7 @@ const styles = StyleSheet.create({
     color: '#bdbddd',
   },
   footerText: {
-    padding: 16,
+    padding: 50,
     width: '100%',
     textAlign: 'center',
     color: '#bdbddd',

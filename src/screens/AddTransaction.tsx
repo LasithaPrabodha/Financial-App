@@ -1,55 +1,145 @@
-import React, {useState} from 'react';
-import {View} from 'react-native';
-import {Button, TextInput} from 'react-native-paper';
+import React, {useCallback, useEffect} from 'react';
+import {StyleSheet, View} from 'react-native';
+import {Button} from 'react-native-paper';
+import {useForm} from 'react-hook-form';
+import {Transaction, TransactionWithType} from '../interfaces/Transaction';
+import {MyMenu} from '../components/MyMenu';
+import {MyInput} from '../components/MyInput';
+import {MyDatePicker} from '../components/MyDatePicker';
+import {currencies, transactionTypes} from '../core/constants';
+import TransactionsService from '../services/TransactionsService';
+import {useNavigation} from '@react-navigation/native';
 
 export const AddTransaction = () => {
-  const [text, setText] = useState('');
+  const navigation = useNavigation<any>();
+  const {
+    reset,
+    setValue,
+    control,
+    handleSubmit,
+    formState: {errors},
+  } = useForm<TransactionWithType>({
+    defaultValues: {
+      company: '',
+      amount: '',
+      currency: '$',
+      date: new Date().toDateString(),
+      icon: null,
+      location: '',
+      product: '',
+    },
+  });
+  const transactionsService = TransactionsService.getInstance();
+
+  const generateFormWithRandomValues = useCallback(() => {
+    const form = transactionsService.generate();
+    setValue('amount', form.amount);
+    setValue('company', form.company);
+    setValue('currency', form.currency);
+    setValue('date', form.date);
+    setValue('icon', transactionTypes.find(t => t.icon === form.icon)!);
+    setValue('location', form.location);
+    setValue('product', form.product);
+  }, [transactionsService, setValue]);
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <Button
+          mode="text"
+          onPress={generateFormWithRandomValues}
+          style={{marginRight: 16}}>
+          Generate
+        </Button>
+      ),
+    });
+  }, [navigation, generateFormWithRandomValues]);
+
+  const onSubmit = (data: TransactionWithType) => {
+    const transaction: Transaction = {
+      ...data,
+      icon: data.icon!.icon,
+      date: new Date(Date.parse(data.date)).toISOString(),
+    };
+    transactionsService.saveTransaction(transaction);
+    reset();
+  };
+
   return (
-    <View style={{padding: 16}}>
-      <TextInput
-        mode="outlined"
+    <View style={styles.container}>
+      <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
+        <View style={{width: '35%'}}>
+          <MyMenu
+            control={control}
+            label="Currency"
+            list={currencies}
+            name="currency"
+          />
+        </View>
+
+        <View style={{marginLeft: 4, flex: 1, flexGrow: 1}}>
+          <MyInput
+            control={control}
+            hasError={errors.amount !== undefined}
+            label="Amount"
+            name="amount"
+            rules={{required: true}}
+            keyboardType="number-pad"
+          />
+        </View>
+      </View>
+
+      <MyInput
+        control={control}
+        hasError={errors.company !== undefined}
         label="Company"
-        value={text}
-        onChangeText={text => setText(text)}
+        name="company"
+        rules={{required: true}}
       />
-      <TextInput
-        mode="outlined"
-        label="Type"
-        value={text}
-        onChangeText={text => setText(text)}
-      />
-      <TextInput
-        mode="outlined"
+
+      <MyInput
+        control={control}
+        hasError={errors.product !== undefined}
         label="Product"
-        value={text}
-        onChangeText={text => setText(text)}
+        name="product"
+        rules={{required: true}}
       />
-      <TextInput
-        mode="outlined"
-        label="Location"
-        value={text}
-        onChangeText={text => setText(text)}
+
+      <MyMenu
+        control={control}
+        label="Type"
+        list={transactionTypes}
+        hasError={errors.icon !== undefined}
+        name="icon"
+        keyAttr="icon"
+        rules={{required: true}}
       />
-      <TextInput
-        mode="outlined"
-        label="Amount"
-        keyboardType="number-pad"
-        value={text}
-        onChangeText={text => setText(text)}
-      />
-      <TextInput
-        mode="outlined"
-        label="Currency"
-        value={text}
-        onChangeText={text => setText(text)}
+
+      <MyInput control={control} label="Location" name="location" />
+
+      <MyDatePicker
+        control={control}
+        label="Date"
+        name="date"
+        rules={{required: true}}
+        hasError={errors.date !== undefined}
       />
       <Button
-        style={{width: 200, marginTop: 16, marginLeft: 'auto'}}
+        style={styles.button}
         icon="save"
         mode="contained"
-        onPress={() => console.log('Pressed')}>
+        onPress={handleSubmit(onSubmit)}>
         Save Transaction
       </Button>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    padding: 16,
+    flex: 1,
+    flexDirection: 'column',
+  },
+  button: {width: 200, marginTop: 16, marginLeft: 'auto'},
+});
