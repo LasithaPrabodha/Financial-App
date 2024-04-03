@@ -1,9 +1,9 @@
-import {ITransaction} from './Transaction';
+import {Transaction} from './Transaction';
 
-export interface ISummary {
+export interface Summary {
   count: number;
   total: number;
-  highest: ITransaction;
-  lowest: ITransaction;
+  highest: Transaction;
+  lowest: Transaction;
   currency: string;
 }

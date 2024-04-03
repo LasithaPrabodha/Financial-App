@@ -1,20 +1,25 @@
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
-import React from 'react';
+import React, {memo, useMemo} from 'react';
 import {Text, View, TouchableOpacity, StyleSheet} from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import {RootStackParamList} from '../screens/Transactions';
-import {ITransaction} from '../interfaces/Transaction';
+import {TransactionWithId} from '../interfaces/Transaction';
 
-export default function TransactionsListItem({
+function TransactionsListItem({
   icon,
   id,
   company,
-  product,
   currency,
   amount,
-}: Readonly<ITransaction>) {
+  date,
+}: Readonly<TransactionWithId>) {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+
+  const dateFormatted = useMemo(() => {
+    return new Date(date).toLocaleDateString('en-CA');
+  }, [date]);
+
   return (
     <TouchableOpacity
       style={styles.item}
@@ -27,7 +32,7 @@ export default function TransactionsListItem({
       />
       <View style={styles.itemText}>
         <Text style={styles.transactionName}>{company}</Text>
-        <Text style={styles.transactionType}>{product}</Text>
+        <Text style={styles.transactionType}>{dateFormatted}</Text>
       </View>
       <Text style={styles.amount}>
         {currency}
@@ -53,3 +58,5 @@ const styles = StyleSheet.create({
     fontSize: 22,
   },
 });
+
+export default memo(TransactionsListItem);
