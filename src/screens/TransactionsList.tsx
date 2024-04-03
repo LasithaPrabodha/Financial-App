@@ -31,19 +31,17 @@ export const TransactionsList = () => {
 
   const onMomentumScrollEnd = () => {
     if (canMomentum.current) {
-      loadMoreResults();
+      if (!loading && !transactionsService.reachedEnd) {
+        setLoadingMore(true);
+        // small delay to show loading state
+        setTimeout(() => loadMoreResults(), 300);
+      }
     }
 
     canMomentum.current = false;
   };
 
   const loadMoreResults = async () => {
-    if (loading || transactionsService.reachedEnd) {
-      return;
-    }
-
-    setLoadingMore(true);
-
     const newList = await transactionsService.loadMore(10);
     setTransactions(newList);
     setLoadingMore(false);
@@ -73,7 +71,7 @@ export const TransactionsList = () => {
           </View>
         }
         renderItem={({item}) => <TransactionsListItem {...item} />}
-        keyExtractor={item => item.id!}
+        keyExtractor={item => item.id}
       />
     </View>
   );
@@ -92,7 +90,7 @@ const styles = StyleSheet.create({
     color: '#bdbddd',
   },
   footerText: {
-    padding: 50,
+    paddingBottom: 50,
     width: '100%',
     textAlign: 'center',
     color: '#bdbddd',

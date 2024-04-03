@@ -9,6 +9,7 @@ import {MyDatePicker} from '../components/MyDatePicker';
 import {currencies, transactionTypes} from '../core/constants';
 import TransactionsService from '../services/TransactionsService';
 import {useNavigation} from '@react-navigation/native';
+import {generateTransaction} from '../core/utils';
 
 export const AddTransaction = () => {
   const navigation = useNavigation<any>();
@@ -32,7 +33,7 @@ export const AddTransaction = () => {
   const transactionsService = TransactionsService.getInstance();
 
   const generateFormWithRandomValues = useCallback(() => {
-    const form = transactionsService.generate();
+    const form = generateTransaction();
     setValue('amount', form.amount);
     setValue('company', form.company);
     setValue('currency', form.currency);
@@ -40,7 +41,7 @@ export const AddTransaction = () => {
     setValue('icon', transactionTypes.find(t => t.icon === form.icon)!);
     setValue('location', form.location);
     setValue('product', form.product);
-  }, [transactionsService, setValue]);
+  }, [setValue]);
 
   useEffect(() => {
     navigation.setOptions({
@@ -91,17 +92,17 @@ export const AddTransaction = () => {
 
       <MyInput
         control={control}
-        hasError={errors.company !== undefined}
-        label="Company"
-        name="company"
+        hasError={errors.product !== undefined}
+        label="Product"
+        name="product"
         rules={{required: true}}
       />
 
       <MyInput
         control={control}
-        hasError={errors.product !== undefined}
-        label="Product"
-        name="product"
+        hasError={errors.company !== undefined}
+        label="Company"
+        name="company"
         rules={{required: true}}
       />
 

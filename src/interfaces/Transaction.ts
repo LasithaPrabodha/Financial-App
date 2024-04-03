@@ -1,5 +1,5 @@
 export interface Transaction {
-  id: string | undefined;
+  id: string | undefined | null;
   company: string;
   product: string;
   location: string;

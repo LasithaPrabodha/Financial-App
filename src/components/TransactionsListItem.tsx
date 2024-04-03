@@ -1,6 +1,6 @@
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
-import React, {memo} from 'react';
+import React, {memo, useMemo} from 'react';
 import {Text, View, TouchableOpacity, StyleSheet} from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import {RootStackParamList} from '../screens/Transactions';
@@ -10,11 +10,15 @@ function TransactionsListItem({
   icon,
   id,
   company,
-  product,
   currency,
   amount,
+  date,
 }: Readonly<TransactionWithId>) {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+
+  const dateFormatted = useMemo(() => {
+    return new Date(date).toLocaleDateString('en-CA');
+  }, [date]);
 
   return (
     <TouchableOpacity
@@ -28,7 +32,7 @@ function TransactionsListItem({
       />
       <View style={styles.itemText}>
         <Text style={styles.transactionName}>{company}</Text>
-        <Text style={styles.transactionType}>{product}</Text>
+        <Text style={styles.transactionType}>{dateFormatted}</Text>
       </View>
       <Text style={styles.amount}>
         {currency}

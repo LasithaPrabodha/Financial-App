@@ -1,8 +1,6 @@
-import {faker} from '@faker-js/faker';
 import {Transaction, TransactionWithId} from '../interfaces/Transaction';
 import {SummaryGridItem} from '../interfaces/SummaryGridItem';
 import firestore from '@react-native-firebase/firestore';
-import {transactionTypes} from '../core/constants';
 
 export default class TransactionsService {
   private static instance: TransactionsService;
@@ -22,24 +20,6 @@ export default class TransactionsService {
     await firestore()
       .collection('Transactions')
       .add({...tranaction, created: firestore.Timestamp.now()});
-  }
-
-  public generate() {
-    return {
-      company: faker.company.name(),
-      product: faker.commerce.product(),
-      location: `${faker.location.city()}, ${faker.location.countryCode()}`,
-      date: faker.date.past().toDateString(),
-      icon: transactionTypes[
-        Math.floor(Math.random() * transactionTypes.length)
-      ].icon,
-      amount: faker.commerce.price({
-        min: 10,
-        max: 200,
-        dec: 2,
-      }),
-      currency: '$',
-    } as Transaction;
   }
 
   public async loadList(limit = 10): Promise<TransactionWithId[]> {
@@ -104,7 +84,7 @@ export default class TransactionsService {
           }
 
           snapshot.forEach((doc, i) => {
-            // skipping the first one as it was the previously last
+            // skipping the first one as it is the previously last
             if (i === 0) {
               return;
             }
