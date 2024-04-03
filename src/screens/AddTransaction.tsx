@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect} from 'react';
-import {StyleSheet, View} from 'react-native';
+import {Platform, StyleSheet, ToastAndroid, View} from 'react-native';
 import {Button} from 'react-native-paper';
 import {useForm} from 'react-hook-form';
 import {Transaction, TransactionWithType} from '../interfaces/Transaction';
@@ -56,6 +56,11 @@ export const AddTransaction = () => {
     });
   }, [navigation, generateFormWithRandomValues]);
 
+  const showToast = () => {
+    Platform.OS === 'android' &&
+      ToastAndroid.show('New transaction added!', ToastAndroid.SHORT);
+  };
+
   const onSubmit = (data: TransactionWithType) => {
     const transaction: Transaction = {
       ...data,
@@ -64,6 +69,7 @@ export const AddTransaction = () => {
     };
     transactionsService.saveTransaction(transaction);
     reset();
+    showToast();
   };
 
   return (
